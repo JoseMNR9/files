@@ -167,11 +167,13 @@ public class Principal extends Application {
                     this.maze.reset(new Size(m.getBlocks().length,m.getBlocks()[0].length));
                     this.maze.setMaze(m);
                     this.maze.draw();
-                } catch (IOException ex) {
+                    
+                }/* catch (IOException ex) {
                     Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ClassNotFoundException ex) {
                     Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (Exception ex) {
+
+                } */catch (Exception ex) {
                     Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
