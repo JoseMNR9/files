@@ -37,7 +37,7 @@ import pedro.ieslaencanta.com.falkensmaze.Size;
  * @author Pedro
  */
 @XmlRootElement
-public class Maze {
+public class Maze implements Serializable{
 
     private Size size;
     private Block[][] blocks;
@@ -120,11 +120,11 @@ public class Maze {
 
     }
 
-    public static void save(Maze maze, File file) {
+    public static void save(Maze maze, File file) throws Exception {
         if (maze.sound == null || maze.sound.equals("")) {
             throw new Exception("Es necesario indicar el sonido del laberinto");
         }
-      
+        saveBin(maze, file);
     }
 
     private static Maze loadJSON(File file)  {
@@ -137,7 +137,7 @@ public class Maze {
           
     }
 
-    public static Maze loadBin(File file)  {
+    public static Maze loadBin(File file) throws FileNotFoundException, IOException, ClassNotFoundException  {
       FileInputStream os = new FileInputStream(file);
       
       ObjectInputStream oos = new ObjectInputStream(os);
@@ -146,7 +146,7 @@ public class Maze {
       os.close();
       
       
-        return m;
+      return m;
     }
 
     private static void saveJSON(Maze maze, File file)  {
@@ -158,11 +158,11 @@ public class Maze {
 
     }
 
-    public static void saveBin(Maze maze, File file)  {
+    public static void saveBin(Maze maze, File file) throws FileNotFoundException, IOException  {
       FileOutputStream os = new FileOutputStream(file);
       
       ObjectOutputStream oos = new ObjectOutputStream(os);
-      Maze m = (Maze) oos.writeObject(oos);
+      oos.writeObject(maze);
       oos.close();
       os.close();
     }
