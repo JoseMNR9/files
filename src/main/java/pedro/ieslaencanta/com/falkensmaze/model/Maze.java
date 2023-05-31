@@ -5,6 +5,7 @@
 package pedro.ieslaencanta.com.falkensmaze.model;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,9 +28,15 @@ import java.io.Serializable;
 
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import javax.swing.text.Document;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 import pedro.ieslaencanta.com.falkensmaze.Size;
 
@@ -113,27 +121,52 @@ public class Maze implements Serializable{
         this.blocks = blocks;
     }
 
-    public static Maze load(File file)  {
+    public static Maze load(File file) throws IOException, ParserConfigurationException, Exception  {
         String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
       
-        return null;
-
+        if(extension.equals("bin")){
+          return loadBin(file); 
+        }else if(extension.equals("xml")){
+           return loadXML(file);
+        }else if(extension.equals("json")){
+            return loadJSON(file);
+        }else{
+           throw new Exception("Ta equivocao");
+        }
     }
 
     public static void save(Maze maze, File file) throws Exception {
+         String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+      
         if (maze.sound == null || maze.sound.equals("")) {
             throw new Exception("Es necesario indicar el sonido del laberinto");
         }
-        saveBin(maze, file);
+        if(extension.equals("bin")){
+           saveBin(maze, file); 
+        }else if(extension.equals("xml")){
+            saveXML(maze, file);
+        }else if(extension.equals("json")){
+            saveJSON(maze, file);
+        }else{
+            throw new Exception("Ta's equivocao");
+        }
+        
+        
     }
 
-    private static Maze loadJSON(File file)  {
-        return null;
+    private static Maze loadJSON(File file) throws FileNotFoundException, IOException  {
+        Gson gson = new Gson();
+        FileReader fr = new FileReader(file);
+        Maze m = gson.fromJson(fr, Maze.class);
+        
+        return m;
     }
 
-    private static Maze loadXML(File file)  {
-
-        return null;
+    private static Maze loadXML(File file) throws ParserConfigurationException, SAXException, IOException, JAXBException  {
+        JAXBContext context = JAXBContext.newInstance( Maze.class );
+        Unmarshaller unmars = context.createUnmarshaller();
+        Maze m = (Maze) unmars.unmarshal(file);
+        return m;
           
     }
 
@@ -149,13 +182,21 @@ public class Maze implements Serializable{
       return m;
     }
 
-    private static void saveJSON(Maze maze, File file)  {
-      
+    private static void saveJSON(Maze maze, File file) throws IOException  {
+        Gson gson = new Gson();
+        String json = gson.toJson(maze);
+        FileWriter fw = new FileWriter(file);
+        fw.write(json);
+        fw.close();
+
     }
 
-    private static void saveXML(Maze maze, File file)  {
-      
-
+    private static void saveXML(Maze maze, File file) throws JAXBException  {
+      JAXBContext contx = JAXBContext.newInstance(maze.getClass());
+        Marshaller marsh = contx.createMarshaller();
+        marsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        marsh.marshal(maze, file);
+        
     }
 
     public static void saveBin(Maze maze, File file) throws FileNotFoundException, IOException  {
